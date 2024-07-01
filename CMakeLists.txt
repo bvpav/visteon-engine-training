@@ -22,6 +22,8 @@ target_link_libraries(engine PRIVATE
     # ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/lib/libGLEW.a
 )
 
+target_link_libraries(engine PRIVATE m)
+
 if (WIN32)
     target_link_libraries(engine PRIVATE opengl32)
 elseif (UNIX)
