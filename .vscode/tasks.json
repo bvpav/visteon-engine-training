@@ -16,6 +16,7 @@
 			"type": "shell",
 			"label": "Run",
 			"command": "./build/engine.exe",
+			"problemMatcher": []
 		}
 	]
 }
