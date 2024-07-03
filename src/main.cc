@@ -58,6 +58,8 @@ struct Program
         return std::unique_ptr<Program>(new Program(id));
     }
 
+    [[nodiscard]] GLuint id() const { return m_id; }
+
     void use() const
     {
         glUseProgram(m_id);
@@ -152,6 +154,7 @@ int main()
     const char *vertex_shader_src = R"(
         #version 330 core
         layout(location = 0) in vec3 position;
+        out vec2 fragCoord;
         void main()
         {
             gl_Position = vec4(position, 1.0);
@@ -161,10 +164,29 @@ int main()
 
     const char *fragment_shader_src = R"(
         #version 330 core
-        out vec4 color;
+
+        out vec4 FragColor;
+        in vec2 TexCoords;
+
+        uniform vec3 i_resolution;
+        uniform float i_time;
+
+        void mainImage(out vec4 fragColor, in vec2 fragCoord)
+        {
+            // Normalized pixel coordinates (from 0 to 1)
+            vec2 uv = fragCoord / i_resolution.xy;
+
+            // Time varying pixel color
+            vec3 col = 0.5 + 0.5 * cos(i_time + uv.xyx + vec3(0, 2, 4));
+
+            // Output to screen
+            fragColor = vec4(col, 1.0);
+        }
+
         void main()
         {
-            color = vec4(0.77, 0.0, 0.75, 1.0);
+            vec2 fragCoord = gl_FragCoord.xy;
+            mainImage(FragColor, fragCoord);
         }
     )";
     std::unique_ptr<Shader> fragment_shader = Shader::from_src(fragment_shader_src, GL_FRAGMENT_SHADER).value();
@@ -181,6 +203,10 @@ int main()
     vao.bind();
     VertexBuffer vbo(vertices, sizeof vertices, GL_STATIC_DRAW);
 
+    // Get the location of the uniform variables
+    GLint i_resolution = glGetUniformLocation(program->id(), "i_resolution");
+    GLint i_time = glGetUniformLocation(program->id(), "i_time");
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -189,6 +215,13 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         program->use();
+
+        // Set uniforms
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        glUniform3f(i_resolution, (float)width, (float)height, 1.0f);
+        glUniform1f(i_time, (float)glfwGetTime());
+
         vao.bind();
         glDrawArrays(GL_TRIANGLES, 0, sizeof vertices / sizeof *vertices / 2);
 
