@@ -1,4 +1,6 @@
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 int main(void)
 {
@@ -16,6 +18,17 @@ int main(void)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        glfwTerminate();
+        return -1;
+    }
+
+    std::cout << "GL_VENDOR:\t" << glGetString(GL_VENDOR) << '\n';
+    std::cout << "GL_RENDERER:\t" << glGetString(GL_RENDERER) << '\n';
+    std::cout << "GL_VERSION:\t" << glGetString(GL_VERSION) << '\n';
+    std::cout << "GL_SHADING_LANGUAGE_VERSION:\t" << glGetString(GL_SHADING_LANGUAGE_VERSION) << '\n';
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))

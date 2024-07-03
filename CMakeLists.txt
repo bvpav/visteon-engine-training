@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_executable(engine
     src/main.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glad/src/glad.c
 )
 
 # GLFW
@@ -14,14 +15,10 @@ set(GLFW_BUILD_WAYLAND ON)
 add_subdirectory(thirdparty/glfw/)
 target_link_libraries(engine PRIVATE glfw)
 
-# GLEW
+# GLAD
 target_include_directories(engine PRIVATE
-    # ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glad/include
 )
-target_link_libraries(engine PRIVATE
-    # ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/lib/libGLEW.a
-)
-
 if (WIN32)
     target_link_libraries(engine PRIVATE opengl32)
 elseif (UNIX)
