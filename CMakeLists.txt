@@ -15,11 +15,28 @@ add_subdirectory(thirdparty/glfw/)
 target_link_libraries(engine PRIVATE glfw)
 
 # GLEW
+# Set the path to the GLEW source directory
+set(GLEW_SOURCE_DIR 
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew
+)
+get_property(GENERATOR GLOBAL PROPERTY GENERATOR)
+# Add a custom target to build GLEW using CMake
+# HACK: How can I instead get the "Unix Makefiles" parameter from the current CMake instance?
+add_custom_target(build_glew
+    COMMAND ${CMAKE_COMMAND} -E chdir ${GLEW_SOURCE_DIR}/build ${CMAKE_COMMAND} -G "Unix Makefiles" cmake/
+    COMMAND ${CMAKE_COMMAND} --build ${GLEW_SOURCE_DIR}/build
+    WORKING_DIRECTORY ${GLEW_SOURCE_DIR}
+    COMMENT "Building GLEW"
+)
+
+# Add a dependency to make sure GLEW is built before your target
+add_dependencies(engine build_glew)
+
 target_include_directories(engine PRIVATE
-    # ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include
+    ${GLEW_SOURCE_DIR}/include
 )
 target_link_libraries(engine PRIVATE
-    # ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/lib/libGLEW.a
+    ${GLEW_SOURCE_DIR}/lib/libGLEW.a
 )
 
 if (WIN32)
