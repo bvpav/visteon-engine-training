@@ -21,11 +21,11 @@ int main(void)
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        glClearColor(1.f, 1.f, 0.f, 1.f);
+        glClearColor(.32f, .85f, .58f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glBegin(GL_TRIANGLES);
-        glColor3f(1.f, 0.f, 0.f);
+        glColor3f(.77f, 0.f, .75f);
         glVertex2f(-0.5f, -0.5f);
         glVertex2f(+0.0f, +0.5f);
         glVertex2f(+0.5f, -0.5f);
