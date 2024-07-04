@@ -1,10 +1,14 @@
+#include <iostream>
+#include <array>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
-#include <tiny_gltf.h>
+//#include <tiny_gltf.h>
 
 #include "eng/gl/shader.hh"
 #include "eng/gl/program.hh"
+#include "eng/mesh/vertex.hh"
+#include "eng/gl/buffer.hh"
 
 int main()
 {
@@ -40,7 +44,7 @@ int main()
 
         void main()
         {
-            gl_Position = vec4(a_pos.xyz, 1.0);
+            gl_Position = vec4(a_pos, 1.0);
         }
     )";
     eng::gl::Shader vertex_shader = eng::gl::Shader::from_src(vertex_shader_src, GL_VERTEX_SHADER).value();
@@ -51,22 +55,19 @@ int main()
 
         void main()
         {
-            out_frag_color = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+            out_frag_color = vec4(0.77f, 0.0f, 0.75f, 1.0f);
         }
     )";
     eng::gl::Shader fragment_shader = eng::gl::Shader::from_src(fragment_shader_src, GL_FRAGMENT_SHADER).value();
 
     eng::gl::Program program = eng::gl::Program::with_shaders(vertex_shader, fragment_shader).value();
 
-    GLfloat vertices[] = {
-        -0.5f, -0.5f,
-        +0.0f, +0.5f,
-        +0.5f, -0.5f,
+    std::array vertices = {
+        eng::mesh::Vertex{-0.5f, -0.5f},
+        eng::mesh::Vertex{+0.0f, +0.5f},
+        eng::mesh::Vertex{+0.5f, -0.5f},
     };
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof vertices, vertices, GL_STATIC_DRAW);
+    eng::gl::Buffer vertex_buffer(vertices);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -75,12 +76,9 @@ int main()
         glClearColor(.32f, .85f, .58f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glBegin(GL_TRIANGLES);
-        glColor3f(.77f, 0.f, .75f);
-        glVertex2f(-0.5f, -0.5f);
-        glVertex2f(+0.0f, +0.5f);
-        glVertex2f(+0.5f, -0.5f);
-        glEnd();
+        program.use();
+        vertex_buffer.bind();
+        glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

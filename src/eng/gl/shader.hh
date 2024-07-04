@@ -10,6 +10,8 @@ class Shader
 public:
     static std::optional<Shader> from_src(const char *src, GLenum type);
 
+    Shader(const Shader &) = delete;
+
     Shader(Shader &&other) noexcept
         : m_id(other.m_id)
     {

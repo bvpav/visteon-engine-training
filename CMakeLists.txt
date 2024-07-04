@@ -8,6 +8,7 @@ add_executable(engine
     src/main.cc
     src/eng/gl/shader.cc
     src/eng/gl/program.cc
+    src/eng/gl/buffer.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glad/src/glad.c
 )
 

@@ -5,12 +5,14 @@
 
 namespace eng::gl {
 
-struct Shader;
+class Shader;
 
 class Program
 {
 public:
     static std::optional<Program> with_shaders(const Shader &vertex_shader, const Shader &fragment_shader);
+
+    Program(const Program &) = delete;
 
     Program(Program &&other) noexcept
         : m_id(other.m_id)
