@@ -24,3 +24,13 @@ if (WIN32)
 elseif (UNIX)
     target_link_libraries(engine PRIVATE GL)
 endif()
+
+# TinyGLTF
+target_include_directories(engine PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/tinyGLTF
+)
+target_compile_definitions(engine PRIVATE
+    -DTINYGLTF_IMPLEMENTATION
+    -DSTB_IMAGE_IMPLEMENTATION
+    -DSTB_IMAGE_WRITE_IMPLEMENTATION
+)
