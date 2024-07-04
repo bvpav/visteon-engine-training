@@ -27,5 +27,4 @@ std::optional<Program> Program::with_shaders(const Shader &vertex_shader, const 
     return std::move(Program(id));
 }
 
-
 }

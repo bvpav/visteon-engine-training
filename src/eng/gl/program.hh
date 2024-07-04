@@ -12,7 +12,7 @@ class Program
 public:
     static std::optional<Program> with_shaders(const Shader &vertex_shader, const Shader &fragment_shader);
 
-    Program(Program &&other)
+    Program(Program &&other) noexcept
         : m_id(other.m_id)
     {
         other.m_id = 0;
@@ -20,7 +20,8 @@ public:
 
     ~Program()
     {
-        glDeleteProgram(m_id);
+        if (m_id)
+            glDeleteProgram(m_id);
     }
 
     void use() const
@@ -29,7 +30,7 @@ public:
     }
 
 private:
-    Program(GLuint id) : m_id(id) {}
+    explicit Program(GLuint id) : m_id(id) {}
 
     GLuint m_id;
 };

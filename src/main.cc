@@ -4,15 +4,16 @@
 #include <tiny_gltf.h>
 
 #include "eng/gl/shader.hh"
+#include "eng/gl/program.hh"
 
-int main(void)
+int main()
 {
     /* Initialize the library */
     if (!glfwInit())
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    GLFWwindow *window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(640, 480, "Hello World", nullptr, nullptr);
     if (!window)
     {
         glfwTerminate();
@@ -54,6 +55,8 @@ int main(void)
         }
     )";
     eng::gl::Shader fragment_shader = eng::gl::Shader::from_src(fragment_shader_src, GL_FRAGMENT_SHADER).value();
+
+    eng::gl::Program program = eng::gl::Program::with_shaders(vertex_shader, fragment_shader).value();
 
     GLfloat vertices[] = {
         -0.5f, -0.5f,

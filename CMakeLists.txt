@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_executable(engine
     src/main.cc
+    src/eng/gl/shader.cc
+    src/eng/gl/program.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glad/src/glad.c
 )
 
