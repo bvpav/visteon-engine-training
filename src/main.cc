@@ -3,6 +3,8 @@
 #include <iostream>
 #include <tiny_gltf.h>
 
+#include "eng/gl/shader.hh"
+
 int main(void)
 {
     /* Initialize the library */
@@ -30,6 +32,38 @@ int main(void)
     std::cout << "GL_RENDERER:\t" << glGetString(GL_RENDERER) << '\n';
     std::cout << "GL_VERSION:\t" << glGetString(GL_VERSION) << '\n';
     std::cout << "GL_SHADING_LANGUAGE_VERSION:\t" << glGetString(GL_SHADING_LANGUAGE_VERSION) << '\n';
+
+    const GLchar *vertex_shader_src = R"(
+        #version 330 core
+        layout (location = 0) in vec3 a_pos;
+
+        void main()
+        {
+            gl_Position = vec4(a_pos.xyz, 1.0);
+        }
+    )";
+    eng::gl::Shader vertex_shader = eng::gl::Shader::from_src(vertex_shader_src, GL_VERTEX_SHADER).value();
+
+    const GLchar *fragment_shader_src = R"(
+        #version 330 core
+        out vec4 out_frag_color;
+
+        void main()
+        {
+            out_frag_color = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+        }
+    )";
+    eng::gl::Shader fragment_shader = eng::gl::Shader::from_src(fragment_shader_src, GL_FRAGMENT_SHADER).value();
+
+    GLfloat vertices[] = {
+        -0.5f, -0.5f,
+        +0.0f, +0.5f,
+        +0.5f, -0.5f,
+    };
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof vertices, vertices, GL_STATIC_DRAW);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
