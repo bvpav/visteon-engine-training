@@ -5,16 +5,23 @@
 
 #include <glad/glad.h>
 
-namespace eng::mesh {
-struct Vertex;
-}
+#include "../mesh/vertex.hh"
+
+// namespace eng::mesh {
+// struct Vertex;
+// }
 
 namespace eng::gl {
 
 class Buffer
 {
 public:
-    explicit Buffer(const std::array<eng::mesh::Vertex, 3> &vertices);
+    template<std::size_t size>
+    explicit Buffer(const std::array<eng::mesh::Vertex, size> &vertices)
+        : Buffer(vertices.data(), sizeof vertices)
+    {}
+    Buffer(const eng::mesh::Vertex *vertices, size_t size);
+
     Buffer(const Buffer &) = delete;
     ~Buffer() { glDeleteBuffers(1, &m_id); }
 

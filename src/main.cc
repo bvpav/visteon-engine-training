@@ -3,7 +3,6 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-//#include <tiny_gltf.h>
 
 #include "eng/gl/shader.hh"
 #include "eng/gl/program.hh"
@@ -63,9 +62,16 @@ int main()
     eng::gl::Program program = eng::gl::Program::with_shaders(vertex_shader, fragment_shader).value();
 
     std::array vertices = {
-        eng::mesh::Vertex{-0.5f, -0.5f},
-        eng::mesh::Vertex{+0.0f, +0.5f},
-        eng::mesh::Vertex{+0.5f, -0.5f},
+        eng::mesh::Vertex{-0.5f, -0.5f, 0.0f, // positions[0]​
+                           0.0f,  0.0f, 1.0f, // normals[0]​
+                           0.25f, 0.25f},     // texture coordinates[0]​
+        eng::mesh::Vertex{ 0.5f, -0.5f, 0.0f, // positions[1]​
+                           0.0f,  0.0f, 1.0f, // normals[1]​
+                           0.75f, 0.25f},     // texture coordinates[1]​
+        eng::mesh::Vertex{ 0.0f,  0.5f, 0.0f, // positions[2]​
+                           0.0f,  0.0f, 1.0f, // normals[2]​
+                           0.5f,  0.75f},     // texture coordinates[2]​
+
     };
     eng::gl::Buffer vertex_buffer(vertices);
 
