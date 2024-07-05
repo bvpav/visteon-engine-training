@@ -74,32 +74,29 @@ int main()
     // };
     // eng::gl::Buffer vertex_buffer(vertices);
 
-    GLfloat positions[] = {
+    GLfloat vertices[] = {
         -0.5f, -0.5f, 0.0f,
          0.5f, -0.5f, 0.0f,
          0.0f,  0.5f, 0.0f,
-    };
-    GLfloat normals[] = {
-        0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f,
-    };
-    GLfloat uvs[] = {
-        0.25f, 0.25f, // texture coordinates[0]​
-        0.75f, 0.25f, // texture coordinates[1]​
-        0.5f, 0.75f // texture coordinates[2]​
+         0.0f,  0.0f, 1.0f,
+         0.0f,  0.0f, 1.0f,
+         0.0f,  0.0f, 1.0f,
+         0.25f, 0.25f,
+         0.75f, 0.25f,
+         0.5f,  0.75f
     };
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof vertices, vertices, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof (GLfloat), positions);
-
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof (GLfloat), 0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof (GLfloat), normals);
-
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof (GLfloat), reinterpret_cast<void *>(3 * 3 * sizeof (GLfloat)));
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 2 * sizeof (GLfloat), uvs);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 2 * sizeof (GLfloat), reinterpret_cast<void *>(6 * 3 * sizeof (GLfloat)));
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
