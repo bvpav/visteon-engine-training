@@ -90,16 +90,32 @@ int main()
         0.5f, 0.75f // texture coordinates[2]​
     };
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    GLuint position_buffer;
+    glGenBuffers(1, &position_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof positions, positions, GL_STATIC_DRAW);
+
+    GLuint normal_buffer;
+    glGenBuffers(1, &normal_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, normal_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof normals, normals, GL_STATIC_DRAW);
+
+    GLuint uv_buffer;
+    glGenBuffers(1, &uv_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, uv_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof uvs, uvs, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof (GLfloat), positions);
+    glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof (GLfloat), nullptr);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof (GLfloat), normals);
+    glBindBuffer(GL_ARRAY_BUFFER, normal_buffer);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof (GLfloat), nullptr);
 
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 2 * sizeof (GLfloat), uvs);
+    glBindBuffer(GL_ARRAY_BUFFER, uv_buffer);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 2 * sizeof (GLfloat), nullptr);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
