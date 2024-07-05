@@ -61,19 +61,45 @@ int main()
 
     eng::gl::Program program = eng::gl::Program::with_shaders(vertex_shader, fragment_shader).value();
 
-    std::array vertices = {
-        eng::mesh::Vertex{-0.5f, -0.5f, 0.0f, // positions[0]​
-                           0.0f,  0.0f, 1.0f, // normals[0]​
-                           0.25f, 0.25f},     // texture coordinates[0]​
-        eng::mesh::Vertex{ 0.5f, -0.5f, 0.0f, // positions[1]​
-                           0.0f,  0.0f, 1.0f, // normals[1]​
-                           0.75f, 0.25f},     // texture coordinates[1]​
-        eng::mesh::Vertex{ 0.0f,  0.5f, 0.0f, // positions[2]​
-                           0.0f,  0.0f, 1.0f, // normals[2]​
-                           0.5f,  0.75f},     // texture coordinates[2]​
+    // std::array vertices = {
+    //     eng::mesh::Vertex{-0.5f, -0.5f, 0.0f, // positions[0]​
+    //                        0.0f,  0.0f, 1.0f, // normals[0]​
+    //                        0.25f, 0.25f},     // texture coordinates[0]​
+    //     eng::mesh::Vertex{ 0.5f, -0.5f, 0.0f, // positions[1]​
+    //                        0.0f,  0.0f, 1.0f, // normals[1]​
+    //                        0.75f, 0.25f},     // texture coordinates[1]​
+    //     eng::mesh::Vertex{ 0.0f,  0.5f, 0.0f, // positions[2]​
+    //                        0.0f,  0.0f, 1.0f, // normals[2]​
+    //                        0.5f,  0.75f},     // texture coordinates[2]​
+    // };
+    // eng::gl::Buffer vertex_buffer(vertices);
 
+    GLfloat positions[] = {
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+         0.0f,  0.5f, 0.0f,
     };
-    eng::gl::Buffer vertex_buffer(vertices);
+    GLfloat normals[] = {
+        0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,
+    };
+    GLfloat uvs[] = {
+        0.25f, 0.25f, // texture coordinates[0]​
+        0.75f, 0.25f, // texture coordinates[1]​
+        0.5f, 0.75f // texture coordinates[2]​
+    };
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof (GLfloat), positions);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof (GLfloat), normals);
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 2 * sizeof (GLfloat), uvs);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -83,8 +109,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         program.use();
-        vertex_buffer.bind();
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
