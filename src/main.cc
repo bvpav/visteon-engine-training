@@ -90,6 +90,10 @@ int main()
         0.5f, 0.75f // texture coordinates[2]​
     };
 
+    GLuint vertex_array;
+    glGenVertexArrays(1, &vertex_array);
+    glBindVertexArray(vertex_array);
+
     GLuint position_buffer;
     glGenBuffers(1, &position_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
@@ -125,6 +129,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         program.use();
+        glBindVertexArray(vertex_array);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         /* Swap front and back buffers */
