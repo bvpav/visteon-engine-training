@@ -1,5 +1,6 @@
 #include <iostream>
 #include <array>
+#include <functional>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -9,6 +10,15 @@
 #include "eng/mesh/vertex.hh"
 #include "eng/gl/buffer.hh"
 #include "eng/gl/vertexarray.hh"
+
+void handle_key(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    auto handler = static_cast<std::function<void(int, int)> *>(glfwGetWindowUserPointer(window));
+    if (key == GLFW_KEY_S && action == GLFW_PRESS)
+    {
+        (*handler)(key, action);
+    }
+}
 
 int main()
 {
@@ -75,7 +85,17 @@ int main()
     };
     eng::gl::Buffer vertex_buffer(vertices);
 
-    eng::gl::VertexArray vertex_array = eng::gl::VertexArray::from<eng::mesh::Vertex>(vertex_buffer);
+    eng::gl::VertexArray vertex_array1 = eng::gl::VertexArray::from<eng::mesh::Vertex>(vertex_buffer);
+    eng::gl::VertexArray vertex_array2 = eng::gl::VertexArray::from<eng::mesh::WeirdVertex>(vertex_buffer);
+    eng::gl::VertexArray *current_vertex_array = &vertex_array1;
+
+    std::function handler = [&](int key, int action)
+    {
+        if (key == GLFW_KEY_S && action == GLFW_PRESS)
+            current_vertex_array = current_vertex_array == &vertex_array1 ? &vertex_array2 : &vertex_array1;
+    };
+    glfwSetWindowUserPointer(window, &handler);
+    glfwSetKeyCallback(window, handle_key);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -86,7 +106,7 @@ int main()
 
         program.use();
         vertex_buffer.bind();
-        vertex_array.bind();
+        current_vertex_array->bind();
         glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
         /* Swap front and back buffers */
