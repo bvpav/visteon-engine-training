@@ -10,6 +10,7 @@
 #include "eng/mesh/vertex.hh"
 #include "eng/gl/buffer.hh"
 #include "eng/gl/vertexarray.hh"
+#include "eng/gltf/gltf.hh"
 
 void handle_key(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -85,9 +86,16 @@ int main()
     };
     eng::gl::Buffer vertex_buffer(vertices);
 
+    tinygltf::Model model = eng::gltf::load("../examples/gltf/02_plane/export/plane.gltf").value();
+    int accessor_idx = model.meshes[model.nodes[0].mesh].primitives[0].attributes["POSITION"];
+    const tinygltf::Accessor &accessor = model.accessors[accessor_idx];
+    const tinygltf::BufferView &buffer_view = model.bufferViews[accessor.bufferView];
+    const tinygltf::Buffer &gltf_buffer = model.buffers[model.bufferViews[accessor.bufferView].buffer];
+    eng::gl::Buffer vertex_buffer2(gltf_buffer.data.data(), gltf_buffer.data.size());
+
     eng::gl::VertexArray vertex_array1 = eng::gl::VertexArray::from<eng::mesh::Vertex>(vertex_buffer);
-    eng::gl::VertexArray vertex_array2 = eng::gl::VertexArray::from<eng::mesh::WeirdVertex>(vertex_buffer);
-    eng::gl::VertexArray *current_vertex_array = &vertex_array1;
+    eng::gl::VertexArray vertex_array2 = eng::gl::VertexArray::from(vertex_buffer2, buffer_view);
+    eng::gl::VertexArray *current_vertex_array = &vertex_array2;
 
     std::function handler = [&](int key, int action)
     {
@@ -105,7 +113,6 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         program.use();
-        vertex_buffer.bind();
         current_vertex_array->bind();
         glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 

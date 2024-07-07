@@ -20,7 +20,7 @@ public:
     explicit Buffer(const std::array<eng::mesh::Vertex, size> &vertices)
         : Buffer(vertices.data(), sizeof vertices)
     {}
-    Buffer(const eng::mesh::Vertex *vertices, size_t size);
+    Buffer(const void *vertices, size_t size);
 
     Buffer(const Buffer &) = delete;
     ~Buffer() { glDeleteBuffers(1, &m_id); }

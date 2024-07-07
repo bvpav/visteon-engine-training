@@ -4,11 +4,11 @@
 
 namespace eng::gl {
 
-Buffer::Buffer(const eng::mesh::Vertex *vertices, size_t size)
+Buffer::Buffer(const void *vertices, size_t size)
     : Buffer()
 {
     bind();
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizei>(size), vertices, GL_STATIC_DRAW);
 }
 
 }
