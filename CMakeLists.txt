@@ -9,6 +9,7 @@ add_executable(engine
     src/eng/gl/shader.cc
     src/eng/gl/program.cc
     src/eng/gl/buffer.cc
+    src/eng/gl/vertexarray.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glad/src/glad.c
 )
 

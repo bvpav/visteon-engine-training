@@ -8,6 +8,7 @@
 #include "eng/gl/program.hh"
 #include "eng/mesh/vertex.hh"
 #include "eng/gl/buffer.hh"
+#include "eng/gl/vertexarray.hh"
 
 int main()
 {
@@ -74,6 +75,8 @@ int main()
     };
     eng::gl::Buffer vertex_buffer(vertices);
 
+    eng::gl::VertexArray vertex_array = eng::gl::VertexArray::from<eng::mesh::Vertex>(vertex_buffer);
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -83,6 +86,7 @@ int main()
 
         program.use();
         vertex_buffer.bind();
+        vertex_array.bind();
         glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
         /* Swap front and back buffers */
