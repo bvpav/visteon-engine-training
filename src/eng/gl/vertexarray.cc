@@ -1,5 +1,7 @@
 #include "vertexarray.hh"
 
+#include <iostream>
+
 #include "../mesh/vertex.hh"
 
 namespace eng::gl {
@@ -24,6 +26,18 @@ VertexArray::~VertexArray()
 void VertexArray::bind() const
 {
     glBindVertexArray(m_id);
+}
+
+#define PRINT_TYPE(x) #x << ": " << x
+
+void VertexArray::add_buffer(GLuint index, const Buffer &vertex_buffer, const tinygltf::Accessor &accessor, const tinygltf::Model &model)
+{
+    bind();
+    vertex_buffer.bind();
+    glEnableVertexAttribArray(index);
+    glVertexAttribPointer(index, accessor.type, accessor.componentType, accessor.normalized,
+                          model.bufferViews.at(accessor.bufferView).byteStride,
+                          reinterpret_cast<void *>(accessor.byteOffset));
 }
 
 }

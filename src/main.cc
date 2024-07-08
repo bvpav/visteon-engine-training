@@ -1,6 +1,7 @@
 #include <iostream>
 #include <array>
 #include <functional>
+#include <list>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -11,15 +12,6 @@
 #include "eng/gl/buffer.hh"
 #include "eng/gl/vertexarray.hh"
 #include "eng/gltf/gltf.hh"
-
-void handle_key(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    auto handler = static_cast<std::function<void(int, int)> *>(glfwGetWindowUserPointer(window));
-    if (key == GLFW_KEY_S && action == GLFW_PRESS)
-    {
-        (*handler)(key, action);
-    }
-}
 
 int main()
 {
@@ -73,37 +65,20 @@ int main()
 
     eng::gl::Program program = eng::gl::Program::with_shaders(vertex_shader, fragment_shader).value();
 
-    std::array vertices = {
-        eng::mesh::Vertex{-0.5f, -0.5f, 0.0f, // positions[0]
-                           0.0f,  0.0f, 1.0f, // normals[0]
-                           0.25f, 0.25f},     // texture coordinates[0]
-        eng::mesh::Vertex{ 0.5f, -0.5f, 0.0f, // positions[1]
-                           0.0f,  0.0f, 1.0f, // normals[1]
-                           0.75f, 0.25f},     // texture coordinates[1]
-        eng::mesh::Vertex{ 0.0f,  0.5f, 0.0f, // positions[2]
-                           0.0f,  0.0f, 1.0f, // normals[2]
-                           0.5f,  0.75f},     // texture coordinates[2]
-    };
-    eng::gl::Buffer vertex_buffer(vertices);
-
-    tinygltf::Model model = eng::gltf::load("../examples/gltf/02_plane/export/plane.gltf").value();
-    int accessor_idx = model.meshes[model.nodes[0].mesh].primitives[0].attributes["POSITION"];
-    const tinygltf::Accessor &accessor = model.accessors[accessor_idx];
-    const tinygltf::BufferView &buffer_view = model.bufferViews[accessor.bufferView];
-    const tinygltf::Buffer &gltf_buffer = model.buffers[model.bufferViews[accessor.bufferView].buffer];
-    eng::gl::Buffer vertex_buffer2(gltf_buffer.data.data(), gltf_buffer.data.size());
-
-    eng::gl::VertexArray vertex_array1 = eng::gl::VertexArray::from<eng::mesh::Vertex>(vertex_buffer);
-    eng::gl::VertexArray vertex_array2 = eng::gl::VertexArray::from(vertex_buffer2, buffer_view);
-    eng::gl::VertexArray *current_vertex_array = &vertex_array2;
-
-    std::function handler = [&](int key, int action)
+    tinygltf::Model model = eng::gltf::load("../examples/gltf/01_triangle/export/triangle.gltf").value();
+    const tinygltf::Node &node = model.nodes.front();
+    eng::gl::VertexArray vertex_array;
+    std::list<eng::gl::Buffer> vertex_buffers;
+    const tinygltf::Primitive &primitive = model.meshes[node.mesh].primitives.front();
+    size_t vertex_count = model.accessors[primitive.attributes.at("POSITION")].count;
+    for (const auto &[_, index] : primitive.attributes)
     {
-        if (key == GLFW_KEY_S && action == GLFW_PRESS)
-            current_vertex_array = current_vertex_array == &vertex_array1 ? &vertex_array2 : &vertex_array1;
-    };
-    glfwSetWindowUserPointer(window, &handler);
-    glfwSetKeyCallback(window, handle_key);
+        const tinygltf::Accessor &accessor = model.accessors.at(index);
+        const tinygltf::BufferView &view = model.bufferViews.at(accessor.bufferView);
+        const tinygltf::Buffer &buffer = model.buffers.at(view.buffer);
+        vertex_buffers.emplace_back(buffer.data.data() + view.byteOffset, view.byteLength);
+        vertex_array.add_buffer(index, vertex_buffers.back(), accessor, model);
+    }
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -113,8 +88,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         program.use();
-        current_vertex_array->bind();
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+        vertex_array.bind();
+        glDrawArrays(GL_TRIANGLES, 0, vertex_count);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
