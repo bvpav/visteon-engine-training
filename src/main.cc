@@ -51,16 +51,18 @@ int main()
     eng::gl::VertexArray vertex_array;
     std::list<eng::gl::Buffer> vertex_buffers;
     const tinygltf::Primitive &primitive = model.meshes[node.mesh].primitives.front();
-    size_t vertex_count = model.accessors[primitive.attributes.at("POSITION")].count;
     for (const auto &[_, index] : primitive.attributes)
     {
         const tinygltf::Accessor &accessor = model.accessors.at(index);
         const tinygltf::BufferView &view = model.bufferViews.at(accessor.bufferView);
-        const tinygltf::Buffer &buffer = model.buffers.at(view.buffer);
-        vertex_buffers.emplace_back(buffer.data.data() + view.byteOffset, view.byteLength);
+        vertex_buffers.emplace_back(view, model);
         vertex_array.add_buffer(index, vertex_buffers.back(), accessor, model);
     }
 
+    const tinygltf::Accessor &indices_accessor = model.accessors.at(primitive.indices);
+    const tinygltf::BufferView &indices_view = model.bufferViews.at(indices_accessor.bufferView);
+    eng::gl::Buffer indices_buffer(indices_view, model, GL_ELEMENT_ARRAY_BUFFER);
+    indices_buffer.bind();
 
     eng::gl::Shader vertex_shader = [&]() -> eng::gl::Shader {
         if (primitive.material < 0)
@@ -95,7 +97,9 @@ int main()
 
         program.use();
         vertex_array.bind();
-        glDrawArrays(GL_TRIANGLES, 0, vertex_count);
+//        glDrawArrays(GL_TRIANGLES, 0, vertex_count);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices_accessor.count),
+                       indices_accessor.componentType, nullptr);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

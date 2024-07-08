@@ -4,32 +4,28 @@
 #include <array>
 
 #include <glad/glad.h>
+#include <tiny_gltf.h>
 
 #include "../mesh/vertex.hh"
-
-// namespace eng::mesh {
-// struct Vertex;
-// }
 
 namespace eng::gl {
 
 class Buffer
 {
 public:
-    template<std::size_t size>
-    explicit Buffer(const std::array<eng::mesh::Vertex, size> &vertices)
-        : Buffer(vertices.data(), sizeof vertices)
-    {}
-    Buffer(const void *vertices, size_t size);
+    Buffer(const tinygltf::BufferView &, const tinygltf::Model &, GLenum target = GL_ARRAY_BUFFER);
 
     Buffer(const Buffer &) = delete;
-    ~Buffer() { glDeleteBuffers(1, &m_id); }
+    ~Buffer();
 
-    void bind() const { glBindBuffer(GL_ARRAY_BUFFER, m_id); }
+    void bind() const;
 
 private:
-    Buffer() : m_id(0) { glGenBuffers(1, &m_id); }
+    explicit Buffer(GLenum target);
+    Buffer(const void *vertices, size_t size, GLenum target);
 
     GLuint m_id;
+    GLenum m_target;
 };
+
 }
