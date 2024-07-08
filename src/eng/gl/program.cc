@@ -3,6 +3,7 @@
 #include "shader.hh"
 
 #include <iostream>
+#include <vector>
 
 namespace eng::gl {
 
@@ -17,10 +18,12 @@ std::optional<Program> Program::with_shaders(const Shader &vertex_shader, const 
     glGetProgramiv(id, GL_LINK_STATUS, &has_linked_successfully);
     if (!has_linked_successfully)
     {
-        char info_log[512];
-        glGetShaderInfoLog(id, sizeof info_log, nullptr, info_log);
+        GLint log_length;
+        glGetProgramiv(id, GL_INFO_LOG_LENGTH, &log_length);
+        std::vector<GLchar> info_log(log_length);
+        glGetShaderInfoLog(id, sizeof info_log, nullptr, info_log.data());
         std::cerr << "error linking program: \n"
-                  << info_log << '\n';
+                  << info_log.data() << '\n';
         return std::nullopt;
     }
 

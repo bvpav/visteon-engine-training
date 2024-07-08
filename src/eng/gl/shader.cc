@@ -1,6 +1,7 @@
 #include "shader.hh"
 
 #include <iostream>
+#include <vector>
 
 #include <glad/glad.h>
 
@@ -15,10 +16,12 @@ std::optional<Shader> Shader::from_src(const GLchar *src, GLenum type)
     glGetShaderiv(id, GL_COMPILE_STATUS, &has_compiled_successfully);
     if (!has_compiled_successfully)
     {
-        char info_log[512];
-        glGetShaderInfoLog(id, sizeof info_log, nullptr, info_log);
+        GLint log_length;
+        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &log_length);
+        std::vector<GLchar> info_log(log_length);
+        glGetShaderInfoLog(id, sizeof info_log, nullptr, info_log.data());
         std::cerr << "error compiling shader: \n"
-                  << info_log << '\n';
+                  << info_log.data() << '\n';
         return std::nullopt;
     }
     return std::move(Shader(id));
