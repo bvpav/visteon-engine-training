@@ -42,7 +42,7 @@ int main()
     std::cout << "GL_SHADING_LANGUAGE_VERSION:\t" << glGetString(GL_SHADING_LANGUAGE_VERSION) << '\n';
 
     const GLchar *vertex_shader_src = R"(
-        #version 330 core
+        #version 300 es
         layout (location = 0) in vec3 a_pos;
 
         void main()
@@ -53,8 +53,8 @@ int main()
     eng::gl::Shader vertex_shader = eng::gl::Shader::from_src(vertex_shader_src, GL_VERTEX_SHADER).value();
 
     const GLchar *fragment_shader_src = R"(
-        #version 330 core
-        out vec4 out_frag_color;
+        #version 300 es
+        out highp vec4 out_frag_color;
 
         void main()
         {
