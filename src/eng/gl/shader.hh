@@ -2,14 +2,13 @@
 
 #include <glad/glad.h>
 #include <optional>
+#include <filesystem>
 
 namespace eng::gl {
 
 class Shader
 {
 public:
-    static std::optional<Shader> from_src(const char *src, GLenum type);
-
     Shader(const Shader &) = delete;
 
     Shader(Shader &&other) noexcept
@@ -23,6 +22,9 @@ public:
         if (m_id)
             glDeleteShader(m_id);
     }
+
+    static std::optional<Shader> from_src(const char *src, GLenum type);
+    static std::optional<Shader> from_file(const std::filesystem::path &path, GLenum type);
 
     [[nodiscard]] GLuint id() const { return m_id; }
 

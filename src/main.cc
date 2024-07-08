@@ -2,6 +2,9 @@
 #include <array>
 #include <functional>
 #include <list>
+#include <fstream>
+#include <sstream>
+#include <filesystem>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -41,31 +44,9 @@ int main()
     std::cout << "GL_VERSION:\t" << glGetString(GL_VERSION) << '\n';
     std::cout << "GL_SHADING_LANGUAGE_VERSION:\t" << glGetString(GL_SHADING_LANGUAGE_VERSION) << '\n';
 
-    const GLchar *vertex_shader_src = R"(
-        #version 300 es
-        layout (location = 0) in vec3 a_pos;
+    const std::filesystem::path gltf_path = "../examples/gltf/03_shaders/export/shaders.gltf";
 
-        void main()
-        {
-            gl_Position = vec4(a_pos, 1.0);
-        }
-    )";
-    eng::gl::Shader vertex_shader = eng::gl::Shader::from_src(vertex_shader_src, GL_VERTEX_SHADER).value();
-
-    const GLchar *fragment_shader_src = R"(
-        #version 300 es
-        out highp vec4 out_frag_color;
-
-        void main()
-        {
-            out_frag_color = vec4(0.77f, 0.0f, 0.75f, 1.0f);
-        }
-    )";
-    eng::gl::Shader fragment_shader = eng::gl::Shader::from_src(fragment_shader_src, GL_FRAGMENT_SHADER).value();
-
-    eng::gl::Program program = eng::gl::Program::with_shaders(vertex_shader, fragment_shader).value();
-
-    tinygltf::Model model = eng::gltf::load("../examples/gltf/01_triangle/export/triangle.gltf").value();
+    const tinygltf::Model model = eng::gltf::load(gltf_path.string()).value();
     const tinygltf::Node &node = model.nodes.front();
     eng::gl::VertexArray vertex_array;
     std::list<eng::gl::Buffer> vertex_buffers;
@@ -79,6 +60,16 @@ int main()
         vertex_buffers.emplace_back(buffer.data.data() + view.byteOffset, view.byteLength);
         vertex_array.add_buffer(index, vertex_buffers.back(), accessor, model);
     }
+
+    const std::string &vertex_shader_filename = model.materials.at(primitive.material).extras.Get("shader").Get("vertex").Get<std::string>();
+    std::filesystem::path vertex_shader_filepath = gltf_path.parent_path() / vertex_shader_filename;
+    eng::gl::Shader vertex_shader = eng::gl::Shader::from_file(vertex_shader_filepath, GL_VERTEX_SHADER).value();
+
+    const std::string &fragment_shader_filename = model.materials.at(primitive.material).extras.Get("shader").Get("fragment").Get<std::string>();
+    std::filesystem::path fragment_shader_filepath = gltf_path.parent_path() / fragment_shader_filename;
+    eng::gl::Shader fragment_shader = eng::gl::Shader::from_file(fragment_shader_filepath, GL_FRAGMENT_SHADER).value();
+
+    eng::gl::Program program = eng::gl::Program::with_shaders(vertex_shader, fragment_shader).value();
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))

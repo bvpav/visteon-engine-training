@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include <filesystem>
 
 #include <glad/glad.h>
 
@@ -25,6 +28,16 @@ std::optional<Shader> Shader::from_src(const GLchar *src, GLenum type)
         return std::nullopt;
     }
     return std::move(Shader(id));
+}
+
+std::optional<Shader> Shader::from_file(const std::filesystem::path &path, GLenum type)
+{
+    std::ifstream file(path);
+    std::stringstream stream;
+    stream << file.rdbuf();
+    const std::string src = stream.str();
+    return from_src(src.c_str(), type);
+
 }
 
 }
