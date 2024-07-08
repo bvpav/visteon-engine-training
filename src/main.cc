@@ -43,10 +43,15 @@ int main()
 
     const GLchar *vertex_shader_src = R"(
         #version 300 es
+
         layout (location = 0) in vec3 a_pos;
+        layout (location = 4) in vec4 a_color;
+
+        out vec4 v_color;
 
         void main()
         {
+            v_color = a_color;
             gl_Position = vec4(a_pos, 1.0);
         }
     )";
@@ -54,11 +59,14 @@ int main()
 
     const GLchar *fragment_shader_src = R"(
         #version 300 es
+
+        in vec4 v_color;
+
         out highp vec4 out_frag_color;
 
         void main()
         {
-            out_frag_color = vec4(0.77f, 0.0f, 0.75f, 1.0f);
+            out_frag_color = v_color;
         }
     )";
     eng::gl::Shader fragment_shader = eng::gl::Shader::from_src(fragment_shader_src, GL_FRAGMENT_SHADER).value();
@@ -79,6 +87,21 @@ int main()
         vertex_buffers.emplace_back(buffer.data.data() + view.byteOffset, view.byteLength);
         vertex_array.add_buffer(index, vertex_buffers.back(), accessor, model);
     }
+
+    // 3 vertices, rgba
+    float colors[] = {
+        1.f, 0.f, 0.f, 1.f, // red
+        0.f, 1.f, 0.f, 1.f, // green
+        0.f, 0.f, 1.f, 1.f, // blue
+    };
+    GLuint color_buffer;
+    glGenBuffers(1, &color_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+
+    vertex_array.bind();
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
