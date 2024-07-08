@@ -25,6 +25,8 @@ public:
 
     static std::optional<Shader> from_src(const char *src, GLenum type);
     static std::optional<Shader> from_file(const std::filesystem::path &path, GLenum type);
+    static std::optional<Shader> default_vertex();
+    static std::optional<Shader> default_fragment();
 
     [[nodiscard]] GLuint id() const { return m_id; }
 

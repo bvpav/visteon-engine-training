@@ -21,10 +21,11 @@ std::optional<Program> Program::with_shaders(const Shader &vertex_shader, const 
         GLint log_length;
         glGetProgramiv(id, GL_INFO_LOG_LENGTH, &log_length);
         std::vector<GLchar> info_log(log_length);
-        glGetShaderInfoLog(id, sizeof info_log, nullptr, info_log.data());
+        glGetProgramInfoLog(id, log_length, nullptr, info_log.data());
         std::cerr << "error linking program: \n"
                   << info_log.data() << '\n';
         return std::nullopt;
+
     }
 
     return std::move(Program(id));

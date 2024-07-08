@@ -44,7 +44,7 @@ int main()
     std::cout << "GL_VERSION:\t" << glGetString(GL_VERSION) << '\n';
     std::cout << "GL_SHADING_LANGUAGE_VERSION:\t" << glGetString(GL_SHADING_LANGUAGE_VERSION) << '\n';
 
-    const std::filesystem::path gltf_path = "../examples/gltf/03_shaders/export/shaders.gltf";
+    const std::filesystem::path gltf_path = "../examples/gltf/02_plane/export/plane.gltf";
 
     const tinygltf::Model model = eng::gltf::load(gltf_path.string()).value();
     const tinygltf::Node &node = model.nodes.front();
@@ -61,13 +61,28 @@ int main()
         vertex_array.add_buffer(index, vertex_buffers.back(), accessor, model);
     }
 
-    const std::string &vertex_shader_filename = model.materials.at(primitive.material).extras.Get("shader").Get("vertex").Get<std::string>();
-    std::filesystem::path vertex_shader_filepath = gltf_path.parent_path() / vertex_shader_filename;
-    eng::gl::Shader vertex_shader = eng::gl::Shader::from_file(vertex_shader_filepath, GL_VERTEX_SHADER).value();
 
-    const std::string &fragment_shader_filename = model.materials.at(primitive.material).extras.Get("shader").Get("fragment").Get<std::string>();
-    std::filesystem::path fragment_shader_filepath = gltf_path.parent_path() / fragment_shader_filename;
-    eng::gl::Shader fragment_shader = eng::gl::Shader::from_file(fragment_shader_filepath, GL_FRAGMENT_SHADER).value();
+    eng::gl::Shader vertex_shader = [&]() -> eng::gl::Shader {
+        if (primitive.material < 0)
+            return eng::gl::Shader::default_vertex().value();
+        const tinygltf::Material &material = model.materials.at(primitive.material);
+        if (!material.extras.Has("shader"))
+            return eng::gl::Shader::default_vertex().value();
+        const std::string &vertex_shader_filename = material.extras.Get("shader").Get("vertex").Get<std::string>();
+        std::filesystem::path vertex_shader_filepath = gltf_path.parent_path() / vertex_shader_filename;
+        return eng::gl::Shader::from_file(vertex_shader_filepath, GL_VERTEX_SHADER).value();
+    }();
+
+    eng::gl::Shader fragment_shader = [&]() -> eng::gl::Shader {
+        if (primitive.material < 0)
+            return eng::gl::Shader::default_fragment().value();
+        const tinygltf::Material &material = model.materials.at(primitive.material);
+        if (!material.extras.Has("shader"))
+            return eng::gl::Shader::default_fragment().value();
+        const std::string &fragment_shader_filename = material.extras.Get("shader").Get("fragment").Get<std::string>();
+        std::filesystem::path fragment_shader_filepath = gltf_path.parent_path() / fragment_shader_filename;
+        return eng::gl::Shader::from_file(fragment_shader_filepath, GL_FRAGMENT_SHADER).value();
+    }();
 
     eng::gl::Program program = eng::gl::Program::with_shaders(vertex_shader, fragment_shader).value();
 
