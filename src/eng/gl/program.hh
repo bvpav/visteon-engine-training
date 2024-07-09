@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 #include <optional>
+#include <unordered_map>
+#include <string>
 
 namespace eng::gl {
 
@@ -31,10 +33,17 @@ public:
         glUseProgram(m_id);
     }
 
+    void set_uniform(const std::string &name, GLfloat value) const;
+    void set_uniform(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w) const;
+
 private:
     explicit Program(GLuint id) : m_id(id) {}
 
+    // FIXME: this modifies the internal cache. should it reealy be const?
+    std::optional<GLint> get_uniform_location(const std::string &name) const;
+
     GLuint m_id;
+    mutable std::unordered_map<std::string, GLint> m_uniforms;
 };
 
 };

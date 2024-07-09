@@ -44,7 +44,7 @@ int main()
     std::cout << "GL_VERSION:\t" << glGetString(GL_VERSION) << '\n';
     std::cout << "GL_SHADING_LANGUAGE_VERSION:\t" << glGetString(GL_SHADING_LANGUAGE_VERSION) << '\n';
 
-    const std::filesystem::path gltf_path = "../examples/gltf/04_suzanne/export/suzanne.gltf";
+    const std::filesystem::path gltf_path = "../examples/gltf/05_suzanne_uniforms/export/suzanne.gltf";
 
     const tinygltf::Model model = eng::gltf::load(gltf_path.string()).value();
     const tinygltf::Node &node = model.nodes.front();
@@ -96,8 +96,9 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         program.use();
+        program.set_uniform("baseColor", 1.0f, 0.0f, 0.0f, 1.0f);
+        program.set_uniform("time", float(glfwGetTime()));
         vertex_array.bind();
-//        glDrawArrays(GL_TRIANGLES, 0, vertex_count);
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices_accessor.count),
                        indices_accessor.componentType, nullptr);
 

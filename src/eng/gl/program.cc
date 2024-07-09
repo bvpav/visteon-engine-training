@@ -31,4 +31,29 @@ std::optional<Program> Program::with_shaders(const Shader &vertex_shader, const 
     return std::move(Program(id));
 }
 
+std::optional<GLint> Program::get_uniform_location(const std::string &name) const
+{
+    GLint location;
+    if (m_uniforms.find(name) != m_uniforms.end())
+        location = m_uniforms.at(name);
+    else
+        location = m_uniforms[name] = glGetUniformLocation(m_id, name.c_str());
+    
+    if (location == GL_INVALID_INDEX)
+        return std::nullopt;
+    return location;
+}
+
+void Program::set_uniform(const std::string &name, GLfloat value) const
+{
+    if (auto location = get_uniform_location(name))
+        glUniform1f(*location, value);
+}
+
+void Program::set_uniform(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w) const
+{
+    if (auto location = get_uniform_location(name))
+        glUniform4f(*location, x, y, z, w);
+}
+
 }
