@@ -44,13 +44,25 @@ std::optional<GLint> Program::get_uniform_location(const std::string &name) cons
     return location;
 }
 
-void Program::set_uniform(const std::string &name, GLfloat value) const
+void Program::set_uniform(const std::string &name, GLint value)
+{
+    if (auto location = get_uniform_location(name))
+        glUniform1i(*location, value);
+}
+
+void Program::set_uniform(const std::string &name, GLfloat value)
 {
     if (auto location = get_uniform_location(name))
         glUniform1f(*location, value);
 }
 
-void Program::set_uniform(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w) const
+void Program::set_uniform(const std::string &name, GLfloat x, GLfloat y, GLfloat z)
+{
+    if (auto location = get_uniform_location(name))
+        glUniform3f(*location, x, y, z);
+}
+
+void Program::set_uniform(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
     if (auto location = get_uniform_location(name))
         glUniform4f(*location, x, y, z, w);

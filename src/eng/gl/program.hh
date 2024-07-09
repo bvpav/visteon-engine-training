@@ -33,8 +33,10 @@ public:
         glUseProgram(m_id);
     }
 
-    void set_uniform(const std::string &name, GLfloat value) const;
-    void set_uniform(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w) const;
+    void set_uniform(const std::string &name, GLint value);
+    void set_uniform(const std::string &name, GLfloat value);
+    void set_uniform(const std::string &name, GLfloat x, GLfloat y, GLfloat z);
+    void set_uniform(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 
 private:
     explicit Program(GLuint id) : m_id(id) {}
