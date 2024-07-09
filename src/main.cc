@@ -44,7 +44,7 @@ int main()
     std::cout << "GL_VERSION:\t" << glGetString(GL_VERSION) << '\n';
     std::cout << "GL_SHADING_LANGUAGE_VERSION:\t" << glGetString(GL_SHADING_LANGUAGE_VERSION) << '\n';
 
-    const std::filesystem::path gltf_path = "../examples/gltf/02_plane/export/plane.gltf";
+    const std::filesystem::path gltf_path = "../examples/gltf/04_suzanne/export/suzanne.gltf";
 
     const tinygltf::Model model = eng::gltf::load(gltf_path.string()).value();
     const tinygltf::Node &node = model.nodes.front();
