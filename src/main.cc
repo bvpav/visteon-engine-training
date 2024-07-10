@@ -15,6 +15,7 @@
 #include "eng/gl/buffer.hh"
 #include "eng/gl/vertexarray.hh"
 #include "eng/gltf/gltf.hh"
+#include "eng/render/glslmaterial.hh"
 
 int main()
 {
@@ -88,6 +89,40 @@ int main()
 
     eng::gl::Program program = eng::gl::Program::with_shaders(vertex_shader, fragment_shader).value();
 
+    eng::render::GLSLMaterial glsl_material(program);
+    if (primitive.material >= 0)
+    {
+        const tinygltf::Material &material = model.materials.at(primitive.material);
+        if (material.extras.Has("shader") && material.extras.Get("shader").Has("uniforms"))
+        {
+            const auto &uniforms = material.extras.Get("shader").Get("uniforms").Get<tinygltf::Value::Array>();
+            for (const auto &uniform : uniforms)
+            {
+                const std::string &name = uniform.Get("name").Get<std::string>();
+                auto value = uniform.Get("value").Get<tinygltf::Value::Array>();
+                const std::string &type = uniform.Get("type").Get<std::string>();
+
+                // Replace the hardcoded values in the gltf file with the actual dynamic values
+                // if (name == "time" || name == "iTime")
+                //     value.at(0) = tinygltf::Value(glfwGetTime());
+                // else if (name == "iResolution")
+                // {
+                //     int width, height;
+                //     glfwGetWindowSize(window, &width, &height);
+                //     value.at(0) = tinygltf::Value(double(width));
+                //     value.at(1) = tinygltf::Value(double(height));
+                // }
+                // else if (name == "iFrame")
+                // {
+                //     static int frame = 0;
+                //     value.at(0) = tinygltf::Value(frame++);
+                // }
+
+                glsl_material.add_uniform(name, type, value);
+            }
+        }
+    }
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -95,52 +130,17 @@ int main()
         glClearColor(.32f, .85f, .58f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        program.use();
-        if (primitive.material >= 0)
+        glsl_material.use();
+        program.set_uniform("time", float(glfwGetTime()));
+        program.set_uniform("iTime",float(glfwGetTime()));
         {
-            const tinygltf::Material &material = model.materials.at(primitive.material);
-            if (material.extras.Has("shader") && material.extras.Get("shader").Has("uniforms"))
-            {
-                const auto &uniforms = material.extras.Get("shader").Get("uniforms").Get<tinygltf::Value::Array>();
-                for (const auto &uniform : uniforms)
-                {
-                    const std::string &name = uniform.Get("name").Get<std::string>();
-                    auto value = uniform.Get("value").Get<tinygltf::Value::Array>();
-                    const std::string &type = uniform.Get("type").Get<std::string>();
-
-                    // Replace the hardcoded values in the gltf file with the actual dynamic values
-                    if (name == "time" || name == "iTime")
-                        value.at(0) = tinygltf::Value(glfwGetTime());
-                    else if (name == "iResolution")
-                    {
-                        int width, height;
-                        glfwGetWindowSize(window, &width, &height);
-                        value.at(0) = tinygltf::Value(double(width));
-                        value.at(1) = tinygltf::Value(double(height));
-                    }
-                    else if (name == "iFrame")
-                    {
-                        static int frame = 0;
-                        value.at(0) = tinygltf::Value(frame++);
-                    }
-
-                    if (type == "Float")
-                        program.set_uniform(name, float(value.at(0).Get<double>()));
-                    else if (type == "Int")
-                        program.set_uniform(name, value.at(0).Get<int>());
-                    else if (type == "Vector3")
-                        program.set_uniform(name,
-                                            float(value.at(0).Get<double>()),
-                                            float(value.at(1).Get<double>()),
-                                            float(value.at(2).Get<double>()));
-                    else if (type == "Vector4")
-                        program.set_uniform(name,
-                                            float(value.at(0).Get<double>()),
-                                            float(value.at(1).Get<double>()),
-                                            float(value.at(2).Get<double>()),
-                                            float(value.at(3).Get<double>()));
-                }
-            }
+            int width, height;
+            glfwGetWindowSize(window, &width, &height);
+            program.set_uniform("iResolution", float(width), float(height), 0.f);
+        }
+        {
+            static int frame = 0;
+            program.set_uniform("iFrame", frame++);
         }
         vertex_array.bind();
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices_accessor.count),

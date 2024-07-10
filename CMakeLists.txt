@@ -12,6 +12,7 @@ add_executable(engine
         src/eng/gl/buffer.cc
         src/eng/gl/vertexarray.cc
         src/eng/gltf/gltf.cc
+        src/eng/render/glslmaterial.cc
 )
 
 # GLFW
