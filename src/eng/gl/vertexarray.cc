@@ -1,8 +1,6 @@
 #include "vertexarray.hh"
 
-#include <iostream>
-
-#include "../mesh/vertex.hh"
+#include "buffer.hh"
 
 namespace eng::gl {
 
@@ -27,8 +25,6 @@ void VertexArray::bind() const
 {
     glBindVertexArray(m_id);
 }
-
-#define PRINT_TYPE(x) #x << ": " << x
 
 void VertexArray::add_buffer(GLuint index, const Buffer &vertex_buffer, const tinygltf::Accessor &accessor, const tinygltf::Model &model)
 {

@@ -5,9 +5,9 @@
 #include <unordered_map>
 #include <string>
 
-namespace eng::gl {
+#include "forward.hh"
 
-class Shader;
+namespace eng::gl {
 
 class Program
 {

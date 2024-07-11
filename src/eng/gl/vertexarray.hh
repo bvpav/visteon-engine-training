@@ -6,12 +6,10 @@
 #include <glad/glad.h>
 #include <tiny_gltf.h>
 
-#include "buffer.hh"
+#include "forward.hh"
 #include "../mesh/vertex.hh"
 
 namespace eng::gl {
-
-class Buffer;
 
 class VertexArray
 {
