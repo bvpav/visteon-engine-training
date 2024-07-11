@@ -27,8 +27,8 @@ target_include_directories(engine PRIVATE
 )
 if (WIN32)
     target_link_libraries(engine PRIVATE opengl32)
-elseif (UNIX)
-    target_link_libraries(engine PRIVATE GL)
+#elseif (UNIX)
+#    target_link_libraries(engine PRIVATE GL)
 endif ()
 
 # TinyGLTF
