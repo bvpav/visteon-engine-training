@@ -96,3 +96,9 @@ $ md5sum ti-processor-sdk-linux-adas-j721s2-evm-09_02_00_05-Linux-x86-Install.bi
 # dpkg-reconfigure locales
 # reboot
 ```
+
+## Building a container image with the SDK
+
+```console
+buildah bud -t ti-processor-sdk-linux:adas-j721s2-evm-09_02_00_05-Linux-x86 .
+```

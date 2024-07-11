@@ -17,7 +17,7 @@ add_executable(engine
 
 # GLFW
 set(GLFW_BUILD_WAYLAND ON)
-# set(GLFW_BUILD_X11 OFF)
+set(GLFW_BUILD_X11 OFF)
 add_subdirectory(thirdparty/glfw/)
 target_link_libraries(engine PRIVATE glfw)
 
