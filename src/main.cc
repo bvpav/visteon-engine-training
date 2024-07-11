@@ -17,11 +17,21 @@
 #include "eng/gltf/gltf.hh"
 #include "eng/render/glslmaterial.hh"
 
+static void log_glfw_error(const char *prefix)
+{
+    const char *description;
+    int error_code = glfwGetError(&description);
+    std::cerr << prefix << ": glfw error " << error_code << ": " << description << '\n';
+}
+
 int main()
 {
     /* Initialize the library */
     if (!glfwInit())
+    {
+        log_glfw_error("error initializing glfw");
         return -1;
+    }
 
     /* Create a windowed mode window and its OpenGL context */
     // get monitor resolution
@@ -30,6 +40,7 @@ int main()
     GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, "Hack TUES <3", monitor, nullptr);
     if (!window)
     {
+        log_glfw_error("error creating window");
         glfwTerminate();
         return -1;
     }
@@ -55,7 +66,7 @@ int main()
     eng::gl::VertexArray vertex_array;
     std::list<eng::gl::Buffer> vertex_buffers;
     const tinygltf::Primitive &primitive = model.meshes[node.mesh].primitives.front();
-    for (const auto &[_, index] : primitive.attributes)
+    for (const auto &[_, index]: primitive.attributes)
     {
         const tinygltf::Accessor &accessor = model.accessors.at(index);
         const tinygltf::BufferView &view = model.bufferViews.at(accessor.bufferView);
@@ -68,7 +79,8 @@ int main()
     eng::gl::Buffer indices_buffer(indices_view, model, GL_ELEMENT_ARRAY_BUFFER);
     indices_buffer.bind();
 
-    eng::gl::Shader vertex_shader = [&]() -> eng::gl::Shader {
+    eng::gl::Shader vertex_shader = [&]() -> eng::gl::Shader
+    {
         if (primitive.material < 0)
             return eng::gl::Shader::default_vertex().value();
         const tinygltf::Material &material = model.materials.at(primitive.material);
@@ -79,7 +91,8 @@ int main()
         return eng::gl::Shader::from_file(vertex_shader_filepath, GL_VERTEX_SHADER).value();
     }();
 
-    eng::gl::Shader fragment_shader = [&]() -> eng::gl::Shader {
+    eng::gl::Shader fragment_shader = [&]() -> eng::gl::Shader
+    {
         if (primitive.material < 0)
             return eng::gl::Shader::default_fragment().value();
         const tinygltf::Material &material = model.materials.at(primitive.material);
@@ -99,7 +112,7 @@ int main()
         if (material.extras.Has("shader") && material.extras.Get("shader").Has("uniforms"))
         {
             const auto &uniforms = material.extras.Get("shader").Get("uniforms").Get<tinygltf::Value::Array>();
-            for (const auto &uniform : uniforms)
+            for (const auto &uniform: uniforms)
             {
                 const std::string &name = uniform.Get("name").Get<std::string>();
                 auto value = uniform.Get("value").Get<tinygltf::Value::Array>();
@@ -135,7 +148,7 @@ int main()
 
         glsl_material.use();
         program.set_uniform("time", float(glfwGetTime()));
-        program.set_uniform("iTime",float(glfwGetTime()));
+        program.set_uniform("iTime", float(glfwGetTime()));
         {
             int width, height;
             glfwGetWindowSize(window, &width, &height);
