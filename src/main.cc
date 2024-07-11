@@ -1,9 +1,7 @@
 #include <iostream>
-#include <array>
 #include <functional>
 #include <list>
 #include <fstream>
-#include <sstream>
 #include <filesystem>
 
 #include <glad/glad.h>
@@ -11,7 +9,6 @@
 
 #include "eng/gl/shader.hh"
 #include "eng/gl/program.hh"
-#include "eng/mesh/vertex.hh"
 #include "eng/gl/buffer.hh"
 #include "eng/gl/vertexarray.hh"
 #include "eng/gltf/gltf.hh"
@@ -48,7 +45,7 @@ int main()
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    if (!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
     {
         glfwTerminate();
         return -1;
@@ -147,6 +144,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         glsl_material.use();
+        // HACK: Set dynamic values here, in the underlying program object :/
         program.set_uniform("time", float(glfwGetTime()));
         program.set_uniform("iTime", float(glfwGetTime()));
         {
